@@ -1,6 +1,7 @@
 def main():
     file1 = open('lenagray.ppm','r')     
     nums  = file1.read().split()
+    HIGH = 125
     for x in range(len(nums)):
         nums[x] = int(nums[x])
     print(nums[:10])
@@ -22,10 +23,22 @@ def main():
             image2[row*WIDTH + col][0] = sqrt(sxx*sxx+syy*syy)
             from math import atan2
             image2[row*WIDTH + col][1] = theta(atan2(syy,sxx))
-            image2[row*WIDTH + col][2] = 1
-            image2[row*WIDTH + col][3] = 1
-            image2[row*WIDTH + col][4] = 1
-    image = [x[0] for x in image2]
+            image2[row*WIDTH + col][2] = 0
+            image2[row*WIDTH + col][3] = 0
+            image2[row*WIDTH + col][4] = 0
+            
+    
+    for row in range(1,HEIGHT-1):
+        for col in range(1,WIDTH-1):
+            direc = image2[row*WIDTH + col][1]
+            first,second = matrixindex(direc)
+            index = row*WIDTH + col
+            m = max([image2[index][0],image2[index+first][0],image2[index+second][0]])
+            if image2[row*WIDTH + col][0] == m:
+                image2[row*WIDTH + col][2] = 1
+                if(image2[index][0] > HIGH):
+                    image2[index][4] = 1
+    image = [ (255 if x[4] else 0)  for x in image2]
     
     displayImageInWindow(normalize(image))
     
@@ -60,7 +73,8 @@ def displayImageInWindow(image):
     x = ImageFrame(image)
  
 def theta(angle):
-    angle = abs(angle)
+    from math import pi
+    angle = abs(angle)*360/2*pi
     if angle <= 45/2:
         return 0;
     if angle <=135/2:
@@ -75,6 +89,22 @@ def normalize(image, intensity =255):
     m = max(image)
     printElaspedTime('normalize')
     return [int(x*intensity/m) for x in image]
+def matrixindex(direction):
+    pos = (-WIDTH-1, -WIDTH, -WIDTH+1, -1, 0, 1, WIDTH-1, WIDTH, WIDTH+1)
+    if(direction == 1):
+        return pos[2],pos[6]
+    if(direction == 2):
+        return pos[1],pos[7]
+    if(direction == 3):
+        return pos[0],pos[8]
+    if(direction == 0):
+        return pos[3],pos[5]
+def fixCellAt(image, index):
+    if image(index)[3] == 1: 
+        return
+    image(index)[3] = 1
+        
+
 from tkinter import Tk, Canvas, YES, BOTH, PhotoImage, NW
 import tkinter
 from time import clock

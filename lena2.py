@@ -11,13 +11,14 @@ def main():
     gas = (1,2,1,2,4,2,1,2,1)
     print(pos)
     image2 = [0] * WIDTH * HEIGHT
-    for n in range(36):
+    for n in range(6):
         for row in range(1,HEIGHT-1):
             for col in range(1,WIDTH-1):
                 sim = 0
                 for c in range(len(pos)):
                     sim += image[row*WIDTH + col+pos[c]]*gas[c]
                 image2 [row*WIDTH + col] = sim//16
+        image = image2
     
     
     displayImageInWindow(image2)
